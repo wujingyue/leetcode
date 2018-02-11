@@ -6,22 +6,19 @@ import java.util.Deque;
 class MaximumBinaryTreeSolution2 {
 	public TreeNode constructMaximumBinaryTree(int[] nums) {
 		Deque<TreeNode> stack = new ArrayDeque<TreeNode>();
-		for (int i = 0; i < nums.length; ++i) {
-			TreeNode newNode = new TreeNode(nums[i]);
-			while (!stack.isEmpty() && stack.peek().val < nums[i]) {
-				stack.peek().right = newNode.left;
-				newNode.left = stack.pop();
+		for (int cur : nums) {
+			TreeNode lastPopped = null;
+			while (!stack.isEmpty() && stack.peek().val < cur) {
+				lastPopped = stack.pop();
 			}
-			stack.push(newNode);
-		}
 
-		assert stack.size() >= 1;
-		while (stack.size() > 1) {
-			TreeNode x = stack.pop();
-			stack.peek().right = x;
+			TreeNode curNode = new TreeNode(cur);
+			curNode.left = lastPopped;
+			if (!stack.isEmpty()) {
+				stack.peek().right = curNode;
+			}
+			stack.push(curNode);
 		}
-		assert stack.size() == 1;
-
-		return stack.peek();
+		return stack.getLast();
 	}
 }
