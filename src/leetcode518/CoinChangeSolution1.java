@@ -19,6 +19,13 @@ class CoinChangeSolution1 implements CoinChangeSolution {
 			}
 		}
 
+		for (int i = 0; i <= coins.length; ++i) {
+			for (int j = 0; j <= amount; ++j) {
+				System.err.print(f[i][j]);
+				System.err.print(' ');
+			}
+			System.err.println();
+		}
 		return f[coins.length][amount];
 	}
 
