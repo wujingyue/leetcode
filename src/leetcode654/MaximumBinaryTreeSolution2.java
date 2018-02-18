@@ -3,7 +3,9 @@ package leetcode654;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-class MaximumBinaryTreeSolution2 {
+class MaximumBinaryTreeSolution2 implements MaximumBinaryTreeSolution {
+
+	@Override
 	public TreeNode constructMaximumBinaryTree(int[] nums) {
 		Deque<TreeNode> stack = new ArrayDeque<TreeNode>();
 		for (int cur : nums) {

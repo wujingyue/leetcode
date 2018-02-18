@@ -1,6 +1,8 @@
 package leetcode654;
 
-class MaximumBinaryTreeSolution1 {
+class MaximumBinaryTreeSolution1 implements MaximumBinaryTreeSolution {
+
+	@Override
 	public TreeNode constructMaximumBinaryTree(int[] nums) {
 		return construct(nums, 0, nums.length - 1);
 	}
