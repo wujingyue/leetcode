@@ -3,8 +3,12 @@ package leetcode516;
 public class LongestPalindromicSubsequenceSolution1 implements LongestPalindromicSubsequenceSolution {
 
 	@Override
-	public int longestPalindromicSubseq(String s) {
+	public int longestPalindromeSubseq(String s) {
 		int n = s.length();
+		if (n == 0) {
+			return 0;
+		}
+
 		int[][] m = new int[n][n];
 		for (int i = 0; i < n; ++i) {
 			m[i][i] = 1;

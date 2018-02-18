@@ -8,7 +8,7 @@ class LongestPalindromicSubsequenceTest {
 
 	void verifyAllSolutions(int expected, String input) {
 		for (LongestPalindromicSubsequenceSolution solution : solutions) {
-			assertEquals(expected, solution.longestPalindromicSubseq(input));
+			assertEquals(expected, solution.longestPalindromeSubseq(input));
 		}
 	}
 
@@ -18,5 +18,6 @@ class LongestPalindromicSubsequenceTest {
 		verifyAllSolutions(2, "cbbd");
 	}
 
-	private LongestPalindromicSubsequenceSolution[] solutions = { new LongestPalindromicSubsequenceSolution1() };
+	private LongestPalindromicSubsequenceSolution[] solutions = { new LongestPalindromicSubsequenceSolution1(),
+			new LongestPalindromicSubsequenceSolution2() };
 }
