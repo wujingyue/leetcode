@@ -9,22 +9,22 @@ public class LongestPalindromicSubsequenceSolution2 implements LongestPalindromi
 			return 0;
 		}
 
-		int[] m = new int[n];
+		int[] f = new int[n];
 		for (int i = n - 1; i >= 0; --i) {
-			m[i] = 1;
+			f[i] = 1;
 			int mIPlusOneJMinusOne = 0;
 			for (int j = i + 1; j < n; ++j) {
 				int mIJ;
 				if (s.charAt(i) == s.charAt(j)) {
 					mIJ = 2 + mIPlusOneJMinusOne;
 				} else {
-					mIJ = Math.max(m[j - 1], m[j]);
+					mIJ = Math.max(f[j - 1], f[j]);
 				}
-				mIPlusOneJMinusOne = m[j];
-				m[j] = mIJ;
+				mIPlusOneJMinusOne = f[j];
+				f[j] = mIJ;
 			}
 		}
-		return m[n - 1];
+		return f[n - 1];
 	}
 
 }
