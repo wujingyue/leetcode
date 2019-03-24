@@ -15,7 +15,8 @@ bool CompareByRatio(const Worker& a, const Worker& b) {
 
 class Solution {
  public:
-  double mincostToHireWorkers(std::vector<int>& quality, std::vector<int>& wage, int k) {
+  double mincostToHireWorkers(std::vector<int>& quality, std::vector<int>& wage,
+                              int k) {
     int n = quality.size();
     assert(n == (int)wage.size());
     std::vector<Worker> workers;
@@ -31,7 +32,8 @@ class Solution {
       min_k_qualities.push(workers[i].quality);
     }
 
-    double min_cost = (double)workers[k - 1].wage * sum_min_k_qualities / workers[k - 1].quality;
+    double min_cost = (double)workers[k - 1].wage * sum_min_k_qualities /
+                      workers[k - 1].quality;
     for (int i = k; i < n; ++i) {
       if (min_k_qualities.top() > workers[i].quality) {
         sum_min_k_qualities -= min_k_qualities.top();
@@ -39,7 +41,9 @@ class Solution {
         sum_min_k_qualities += workers[i].quality;
         min_k_qualities.push(workers[i].quality);
       }
-      min_cost = std::min(min_cost, (double)workers[i].wage * sum_min_k_qualities / workers[i].quality);
+      min_cost =
+          std::min(min_cost, (double)workers[i].wage * sum_min_k_qualities /
+                                 workers[i].quality);
     }
     return min_cost;
   }
