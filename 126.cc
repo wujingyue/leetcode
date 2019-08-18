@@ -9,30 +9,30 @@ using namespace std;
 class Solution {
  public:
   int ladderLength(string begin, string end, vector<string>& words) {
-    unordered_map<string, int> word_id;
+    unordered_map<string, vector<int>> pattern_words;
     int n = words.size();
     for (int x = 0; x < n; x++) {
-      word_id[words[x]] = x;
+      string pattern = words[x];
+      for (size_t i = 0, e = words[x].length(); i < e; ++i) {
+        pattern[i] = '*';
+        pattern_words[pattern].push_back(x);
+        pattern[i] = words[x][i];
+      }
     }
-
-    if (word_id.count(end) == 0) {
-      return 0;
-    }
-    int v = word_id[end];
 
     queue<int> q;
     vector<int> steps(n, -1);
-    for (int y : FindNeighbors(word_id, begin)) {
+    for (int y : FindNeighbors(pattern_words, begin)) {
       q.push(y);
       steps[y] = 2;
     }
     while (!q.empty()) {
       int x = q.front();
       q.pop();
-      if (x == v) {
+      if (words[x] == end) {
         return steps[x];
       }
-      for (int y : FindNeighbors(word_id, words[x])) {
+      for (int y : FindNeighbors(pattern_words, words[x])) {
         if (steps[y] == -1) {
           q.push(y);
           steps[y] = steps[x] + 1;
@@ -42,20 +42,15 @@ class Solution {
     return 0;
   }
 
-  vector<int> FindNeighbors(const unordered_map<string, int>& word_id,
+  vector<int> FindNeighbors(const unordered_map<string, vector<int>>& pattern_words,
                             string word) {
     vector<int> neighbors;
     for (size_t i = 0, e = word.length(); i < e; i++) {
       int orig_c = word[i];
-      for (char c = 'a'; c <= 'z'; c++) {
-        if (c == orig_c) {
-          continue;
-        }
-        word[i] = c;
-        auto iter = word_id.find(word);
-        if (iter != word_id.end()) {
-          neighbors.push_back(iter->second);
-        }
+      word[i] = '*';
+      auto iter = pattern_words.find(word);
+      if (iter != pattern_words.end()) {
+        neighbors.insert(neighbors.end(), iter->second.begin(), iter->second.end());
       }
       word[i] = orig_c;
     }
