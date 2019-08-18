@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iostream>
+#include <queue>
 #include <vector>
 
 using namespace std;
@@ -15,11 +16,18 @@ class Solution {
       a[y].push_back(x);
     }
 
-    vector<int> reverse_postorder;
-    if (!ReversePostorder(a, reverse_postorder)) {
-      return {};
+    vector<int> topological_order;
+    constexpr int kUseReversePostorder = false;
+    if (kUseReversePostorder) {
+      if (!ReversePostorder(a, topological_order)) {
+        return {};
+      }
+    } else {
+      if (!TopologicalSort(a, topological_order)) {
+        return {};
+      }
     }
-    return reverse_postorder;
+    return topological_order;
   }
 
  private:
@@ -56,6 +64,39 @@ class Solution {
     in_stack[x] = false;
     postorder.push_back(x);
     return true;
+  }
+
+  bool TopologicalSort(const vector<vector<int>>& a,
+                       vector<int>& topological_order) {
+    int n = a.size();
+    vector<int> incoming_edges(n);
+    for (int x = 0; x < n; x++) {
+      for (int y : a[x]) {
+        incoming_edges[y]++;
+      }
+    }
+
+    queue<int> q;  // Nodes with no incoming edges.
+    for (int x = 0; x < n; x++) {
+      if (incoming_edges[x] == 0) {
+        q.push(x);
+      }
+    }
+
+    int num_expanded = 0;
+    while (!q.empty()) {
+      int x = q.front();
+      q.pop();
+      num_expanded++;
+      topological_order.push_back(x);
+      for (int y : a[x]) {
+        incoming_edges[y]--;
+        if (incoming_edges[y] == 0) {
+          q.push(y);
+        }
+      }
+    }
+    return num_expanded == n;
   }
 };
 
