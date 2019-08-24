@@ -14,27 +14,29 @@ class Solution {
     // submatrix whose sum is no larger than k.
     int answer = INT_MIN;
     // Assumes n is much smaller than m.
+    vector<int> row_sum(m);
     for (int j1 = 0; j1 < n; j1++) {
-      vector<int> row_sum(m);
+      fill(row_sum.begin(), row_sum.end(), 0);
       for (int j2 = j1; j2 < n; j2++) {
-        vector<int> prefix_sum(m);
-        for (int i = 0; i < m; i++) {
-          row_sum[i] += matrix[i][j2];
-          prefix_sum[i] = (i == 0 ? 0 : prefix_sum[i - 1]) + row_sum[i];
-        }
         // Find the largest subarray sum that is no larger than k. This is
         // equivalent to finding the largest prefix_sum[i2]-prefix_sum[i1-1]
         // that is at most k.
+        int prefix_sum = 0;
         set<int> previous_prefix_sums;
-        previous_prefix_sums.insert(0);
+        previous_prefix_sums.insert(prefix_sum);
         for (int i2 = 0; i2 < m; i2++) {
+          row_sum[i2] += matrix[i2][j2];
+          prefix_sum += row_sum[i2];
           // Find the smallest previous prefix sum that is no smaller than
           // prefix_sum[i2]-k.
-          auto iter = previous_prefix_sums.lower_bound(prefix_sum[i2] - k);
+          auto iter = previous_prefix_sums.lower_bound(prefix_sum - k);
           if (iter != previous_prefix_sums.end()) {
-            answer = max(answer, prefix_sum[i2] - *iter);
+            answer = max(answer, prefix_sum - *iter);
+            if (answer == k) {
+              return answer;
+            }
           }
-          previous_prefix_sums.insert(prefix_sum[i2]);
+          previous_prefix_sums.insert(prefix_sum);
         }
       }
     }
