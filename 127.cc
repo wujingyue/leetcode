@@ -13,7 +13,7 @@ class Solution {
     int n = words.size();
     for (int x = 0; x < n; x++) {
       string pattern = words[x];
-      for (size_t i = 0, e = words[x].length(); i < e; ++i) {
+      for (size_t i = 0, e = words[x].length(); i != e; ++i) {
         pattern[i] = '*';
         pattern_words[pattern].push_back(x);
         pattern[i] = words[x][i];
@@ -43,16 +43,16 @@ class Solution {
   }
 
   vector<int> FindNeighbors(const unordered_map<string, vector<int>>& pattern_words,
-                            string word) {
+                            const string& word) {
     vector<int> neighbors;
-    for (size_t i = 0, e = word.length(); i < e; i++) {
-      int orig_c = word[i];
-      word[i] = '*';
-      auto iter = pattern_words.find(word);
+    string pattern = word;
+    for (size_t i = 0, e = pattern.length(); i != e; i++) {
+      pattern[i] = '*';
+      auto iter = pattern_words.find(pattern);
       if (iter != pattern_words.end()) {
         neighbors.insert(neighbors.end(), iter->second.begin(), iter->second.end());
       }
-      word[i] = orig_c;
+      pattern[i] = word[i];
     }
     return neighbors;
   }
