@@ -1,1 +1,8 @@
+*.stackdump
+*.swp
+.cproject
+.project
+.settings
+.vscode
+a.exe
 a.out
