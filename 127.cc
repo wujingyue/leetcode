@@ -2,6 +2,7 @@
 #include <queue>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 using namespace std;
@@ -42,15 +43,16 @@ class Solution {
     return 0;
   }
 
-  vector<int> FindNeighbors(const unordered_map<string, vector<int>>& pattern_words,
-                            const string& word) {
-    vector<int> neighbors;
+  unordered_set<int> FindNeighbors(
+      const unordered_map<string, vector<int>>& pattern_words,
+      const string& word) {
+    unordered_set<int> neighbors;
     string pattern = word;
     for (size_t i = 0, e = pattern.length(); i != e; i++) {
       pattern[i] = '*';
       auto iter = pattern_words.find(pattern);
       if (iter != pattern_words.end()) {
-        neighbors.insert(neighbors.end(), iter->second.begin(), iter->second.end());
+        neighbors.insert(iter->second.begin(), iter->second.end());
       }
       pattern[i] = word[i];
     }
