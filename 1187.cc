@@ -29,29 +29,32 @@ class Solution {
     }
 
     // m[i][j] represents the fewest replacements to make a[0..i] increasing and
-    // a[i] equal to j.
-    vector<vector<int>> m(n, vector<int>(nums.size(), INT_MAX));
-    m[0][a[0]] = 0;
+    // a[i] equal to j. We only need to store one row of m[i][j] at any time.
+    vector<int> m(nums.size(), INT_MAX);
+    m[a[0]] = 0;
     if (!b.empty()) {
-      UpdateIfGreaterThan(&m[0][b[0]], 1);
+      UpdateIfGreaterThan(&m[b[0]], 1);
     }
     for (int i = 0; i + 1 < n; i++) {
-      for (int j = 0; j < nums.size(); j++) {
-        if (m[i][j] == INT_MAX) {
+      for (int j = (int)nums.size() - 1; j >= 0; j--) {
+        if (m[j] == INT_MAX) {
           continue;
         }
         if (j < a[i + 1]) {
-          UpdateIfGreaterThan(&m[i + 1][a[i + 1]], m[i][j]);
+          UpdateIfGreaterThan(&m[a[i + 1]], m[j]);
         }
         int next_j = next_in_b[j];
         if (next_j >= 0) {
-          UpdateIfGreaterThan(&m[i + 1][next_j], m[i][j] + 1);
+          UpdateIfGreaterThan(&m[next_j], m[j] + 1);
         }
+        // After this iteration, m[j] means m[i+1][j] instead of m[i][j] so set
+        // it to INT_MAX.
+        m[j] = INT_MAX;
       }
     }
     int answer = INT_MAX;
     for (int j = 0; j < nums.size(); j++) {
-      UpdateIfGreaterThan(&answer, m[n - 1][j]);
+      UpdateIfGreaterThan(&answer, m[j]);
     }
     return (answer == INT_MAX ? -1 : answer);
   }
