@@ -11,7 +11,8 @@ using namespace std;
 
 class BFS {
  public:
-  BFS(const vector<string>& words) : words_(words) {
+  BFS(const vector<string>& words, bool bidirectional)
+      : words_(words), bidirectional_(bidirectional) {
     int n = words.size();
     for (int x = 0; x < n; x++) {
       string pattern = words[x];
@@ -23,7 +24,16 @@ class BFS {
     }
   }
 
-  int search(const string& begin, const string& end) {
+  int Search(const string& begin, const string& end) {
+    if (bidirectional_) {
+      return BidirectionalSearch(begin, end);
+    } else {
+      return UnidirectionalSearch(begin, end);
+    }
+  }
+
+ private:
+  int UnidirectionalSearch(const string& begin, const string& end) {
     int n = words_.size();
     queue<int> q;
     vector<int> steps(n, -1);
@@ -49,7 +59,61 @@ class BFS {
     return 0;
   }
 
- private:
+  int BidirectionalSearch(const string& begin, const string& end) {
+    int n = words_.size();
+    queue<int> q_forward;
+    queue<int> q_backward;
+    vector<int> steps_forward(n, -1);
+    vector<int> steps_backward(n, -1);
+
+    int end_id = find(words_.begin(), words_.end(), end) - words_.begin();
+    if (end_id == n) {
+      return 0;
+    }
+
+    q_backward.push(end_id);
+    steps_backward[end_id] = 0;
+
+    for (int y : FindNeighbors(begin)) {
+      q_forward.push(y);
+      steps_forward[y] = 1;
+      if (steps_backward[y] >= 0) {
+        return steps_forward[y] + steps_backward[y] + 1;
+      }
+    }
+
+    while (!q_forward.empty() && !q_backward.empty()) {
+      int step = ExpandOneLevel(&q_backward, &steps_backward, steps_forward);
+      if (step > 0) {
+        return step;
+      }
+      step = ExpandOneLevel(&q_forward, &steps_forward, steps_backward);
+      if (step > 0) {
+        return step;
+      }
+    }
+    return 0;
+  }
+
+  int ExpandOneLevel(queue<int>* q, vector<int>* steps,
+                     const vector<int>& other_steps) {
+    int q_size = q->size();
+    for (int i = 0; i < q_size; i++) {
+      int x = q->front();
+      q->pop();
+      for (int y : FindNeighbors(words_[x])) {
+        if ((*steps)[y] == -1) {
+          q->push(y);
+          (*steps)[y] = (*steps)[x] + 1;
+          if (other_steps[y] >= 0) {
+            return (*steps)[y] + other_steps[y] + 1;
+          }
+        }
+      }
+    }
+    return 0;
+  }
+
   unordered_set<int> FindNeighbors(const string& word) {
     unordered_set<int> neighbors;
     string pattern = word;
@@ -65,6 +129,7 @@ class BFS {
   }
 
   vector<string> words_;
+  bool bidirectional_;
   unordered_map<string, vector<int>> pattern_words_;
 };
 
@@ -72,8 +137,8 @@ class Solution {
  public:
   int ladderLength(const string& begin, const string& end,
                    const vector<string>& words) {
-    BFS bfs(words);
-    return bfs.search(begin, end);
+    BFS bfs(words, /*bidirectional=*/true);
+    return bfs.Search(begin, end);
   }
 };
 
