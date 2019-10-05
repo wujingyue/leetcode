@@ -143,14 +143,25 @@ class Solution {
   }
 };
 
-TEST(WordLadderTest, testExists) {
+TEST(WordLadderTest, Exists) {
   EXPECT_EQ(5, Solution().ladderLength(
                    "hit", "cog", {"hot", "dot", "dog", "lot", "log", "cog"}));
 }
 
-TEST(WordLadderTest, testNotExists) {
+TEST(WordLadderTest, NotExists) {
   EXPECT_EQ(0, Solution().ladderLength("hit", "cog",
                                        {"hot", "dot", "dog", "lot", "log"}));
+}
+
+TEST(WordLadderTest, ForkJoin) {
+  // aaa -> aab -> bab -> bac -> cac
+  //     \---> aaz ---> caz ---/
+  vector<string> words({"aaa", "aab", "bab", "bac", "cac", "aaz", "caz"});
+  sort(words.begin(), words.end());
+  // Try all possible permutations to improve test coverage.
+  do {
+    EXPECT_EQ(4, Solution().ladderLength("aaa", "cac", words));
+  } while (next_permutation(words.begin(), words.end()));
 }
 
 void BM_LargeDictionary(benchmark::State& state) {
