@@ -123,12 +123,16 @@ class BFS {
     const string& word = words_[x];
     string pattern = word;
     vector<int> neighbors;
+    neighbors.reserve(16);
     for (size_t i = 0, e = pattern.length(); i != e; i++) {
       pattern[i] = '*';
       auto iter = pattern_words_.find(pattern);
       if (iter != pattern_words_.end()) {
-        neighbors.insert(neighbors.end(), iter->second.begin(),
-                         iter->second.end());
+        for (int y : iter->second) {
+          if (y != x) {
+            neighbors.push_back(y);
+          }
+        }
       }
       pattern[i] = word[i];
     }
