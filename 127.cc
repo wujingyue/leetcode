@@ -59,7 +59,7 @@ class BFS {
       if (words_[x] == end) {
         return steps[x];
       }
-      for (int y : FindNeighbors(words_[x])) {
+      for (int y : FindNeighbors(x)) {
         if (steps[y] == -1) {
           q.push(y);
           steps[y] = steps[x] + 1;
@@ -106,7 +106,7 @@ class BFS {
     for (int i = 0; i < q_size; i++) {
       int x = q->front();
       q->pop();
-      for (int y : FindNeighbors(words_[x])) {
+      for (int y : FindNeighbors(x)) {
         if ((*steps)[y] == -1) {
           q->push(y);
           (*steps)[y] = (*steps)[x] + 1;
@@ -119,9 +119,10 @@ class BFS {
     return 0;
   }
 
-  vector<int> FindNeighbors(const string& word) {
-    vector<int> neighbors;
+  vector<int> FindNeighbors(const int x) {
+    const string& word = words_[x];
     string pattern = word;
+    vector<int> neighbors;
     for (size_t i = 0, e = pattern.length(); i != e; i++) {
       pattern[i] = '*';
       auto iter = pattern_words_.find(pattern);
