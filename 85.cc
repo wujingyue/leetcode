@@ -10,27 +10,7 @@ struct Rectangle {
 
 class Solution {
  public:
-  int MaxRectangleInHistogram(const vector<int>& h) {
-    int n = h.size();
-    int max_area = 0;
-    vector<Rectangle> stack;
-    for (int y = 0; y < n; ++y) {
-      int left = y;
-      while (!stack.empty() && stack.back().height >= h[y]) {
-        max_area = max(max_area, (y - stack.back().left) * stack.back().height);
-        left = stack.back().left;
-        stack.pop_back();
-      }
-      stack.push_back(Rectangle{left, h[y]});
-    }
-    while (!stack.empty()) {
-      max_area = max(max_area, (n - stack.back().left) * stack.back().height);
-      stack.pop_back();
-    }
-    return max_area;
-  }
-
-  int maximalRectangle(vector<vector<char>>& matrix) {
+  int maximalRectangle(const vector<vector<char>>& matrix) {
     int m = matrix.size();
     if (m == 0) {
       return 0;
@@ -51,6 +31,28 @@ class Solution {
     }
     return max_area;
   }
+
+ private:
+  int MaxRectangleInHistogram(const vector<int>& h) {
+    int n = h.size();
+    int max_area = 0;
+    vector<Rectangle> stack;
+    for (int y = 0; y < n; ++y) {
+      int left = y;
+      while (!stack.empty() && stack.back().height >= h[y]) {
+        max_area = max(max_area, (y - stack.back().left) * stack.back().height);
+        left = stack.back().left;
+        stack.pop_back();
+      }
+      stack.push_back(Rectangle{left, h[y]});
+    }
+    while (!stack.empty()) {
+      max_area = max(max_area, (n - stack.back().left) * stack.back().height);
+      stack.pop_back();
+    }
+    return max_area;
+  }
+
 };
 
 int main() {
