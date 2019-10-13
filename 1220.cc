@@ -6,7 +6,20 @@
 
 using namespace std;
 
-class Solution {
+constexpr int kModulo = 1000000007;
+constexpr bool kFollowedBy[][5] = {
+    // a may only be followed by e.
+    {false, true, false, false, false},
+    // e may only be followed by a or i.
+    {true, false, true, false, false},
+    // i may not be followed by i.
+    {true, true, false, true, true},
+    // o may be followed by i or u.
+    {false, false, true, false, true},
+    // u may be followed by a.
+    {true, false, false, false, false}};
+
+class NaiveDPSolution {
  public:
   int countVowelPermutation(int n) {
     // m[i][j] represents the number of sequences of length i that end at vowel
@@ -15,17 +28,6 @@ class Solution {
     for (int j = 0; j < 5; j++) {
       m[1][j] = 1;
     }
-    constexpr bool kFollowedBy[][5] = {// a may only be followed by e.
-                                       {false, true, false, false, false},
-                                       // e may only be followed by a or i.
-                                       {true, false, true, false, false},
-                                       // i may not be followed by i.
-                                       {true, true, false, true, true},
-                                       // o may be followed by i or u.
-                                       {false, false, true, false, true},
-                                       // u may be followed by a.
-                                       {true, false, false, false, false}};
-    constexpr int kModulo = 1000000007;
     for (int i = 1; i < n; i++) {
       for (int j = 0; j < 5; j++) {
         for (int j2 = 0; j2 < 5; j2++) {
@@ -40,6 +42,32 @@ class Solution {
     int sum = 0;
     for (int j = 0; j < 5; j++) {
       sum = (sum + m[n][j]) % kModulo;
+    }
+    return sum;
+  }
+};
+
+class Solution {
+ public:
+  int countVowelPermutation(int n) {
+    vector<int> m(5, 1);
+    vector<int> m2(5);
+    for (int i = 1; i < n; i++) {
+      fill(m2.begin(), m2.end(), 0);
+      for (int j = 0; j < 5; j++) {
+        for (int j2 = 0; j2 < 5; j2++) {
+          if (kFollowedBy[j][j2]) {
+            m2[j2] += m[j];
+            m2[j2] %= kModulo;
+          }
+        }
+      }
+      m.swap(m2);
+    }
+
+    int sum = 0;
+    for (int j = 0; j < 5; j++) {
+      sum = (sum + m[j]) % kModulo;
     }
     return sum;
   }
