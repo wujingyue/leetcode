@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include <unordered_map>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -11,11 +12,25 @@ constexpr int kDy[] = {0, 1, 0, -1};
 
 struct Node {
   bool operator<(const Node& other) const { return s > other.s; }
+  bool operator==(const Node& other) const {
+    return x == other.x && y == other.y && s == other.s;
+  }
 
   int x;
   int y;
   int s;
 };
+
+namespace std {
+template <>
+struct hash<Node> {
+  size_t operator()(const Node& n) const {
+    constexpr int kMaxRows = 20;
+    constexpr int kMaxCols = 20;
+    return (n.s * kMaxRows + n.x) * kMaxCols + n.y;
+  }
+};
+}  // namespace std
 
 class Solution {
  public:
@@ -43,19 +58,19 @@ class Solution {
       }
     }
 
-    vector<vector<vector<int>>> m(
-        r, vector<vector<int>>(c, vector<int>(1 << r * c)));
+    unordered_map<Node, int> m;
     priority_queue<Node> q;
 
     int start_s = (1 << (start_x * c + start_y));
-    m[start_x][start_y][start_s] = 1;
-    q.push(Node{start_x, start_y, start_s});
+    Node start{start_x, start_y, start_s};
+    m[start] = 1;
+    q.push(start);
     while (!q.empty()) {
       const Node& top = q.top();
       const int x = top.x;
       const int y = top.y;
       const int s = top.s;
-      const int value = m[x][y][s];
+      const int value = m.at(top);
       q.pop();
 
       if (s >= end_s) {
@@ -76,15 +91,16 @@ class Solution {
           continue;
         }
         int s2 = s + mask2;
-        int& value2 = m[x2][y2][s2];
-        if (value2 == 0) {
-          q.push(Node{x2, y2, s2});
+        Node neighbor{x2, y2, s2};
+
+        if (!m.count(neighbor)) {
+          q.push(neighbor);
         }
-        value2 += value;
+        m[neighbor] += value;
       }
     }
 
-    return m[end_x][end_y][end_s];
+    return m[Node{end_x, end_y, end_s}];
   }
 };
 
