@@ -1,3 +1,4 @@
+#include <bitset>
 #include <iostream>
 #include <numeric>
 #include <vector>
@@ -7,17 +8,17 @@
 using namespace std;
 
 constexpr int kModulo = 1000000007;
-constexpr bool kFollowedBy[][5] = {
+constexpr int kFollowedBy[][5] = {
     // a may only be followed by e.
-    {false, true, false, false, false},
+    {0, 1, 0, 0, 0},
     // e may only be followed by a or i.
-    {true, false, true, false, false},
+    {1, 0, 1, 0, 0},
     // i may not be followed by i.
-    {true, true, false, true, true},
+    {1, 1, 0, 1, 1},
     // o may be followed by i or u.
-    {false, false, true, false, true},
+    {0, 0, 1, 0, 1},
     // u may be followed by a.
-    {true, false, false, false, false}};
+    {1, 0, 0, 0, 0}};
 
 class NaiveDPSolution {
  public:
@@ -47,7 +48,7 @@ class NaiveDPSolution {
   }
 };
 
-class Solution {
+class SpaceEfficientDPSolution {
  public:
   int countVowelPermutation(int n) {
     vector<int> m(5, 1);
@@ -70,6 +71,49 @@ class Solution {
       sum = (sum + m[j]) % kModulo;
     }
     return sum;
+  }
+};
+
+class Solution {
+ public:
+  int countVowelPermutation(int n) {
+    // m = [1,1,1,1,1] * kFollowedBy^(n-1).
+    constexpr int kBitWidth = 15;
+    bitset<kBitWidth> bs(n - 1);
+    int a[5][5];
+    memset(a, 0, sizeof(a));
+    for (int i = 0; i < 5; i++) {
+      a[i][i] = 1;
+    }
+    for (int i = kBitWidth - 1; i >= 0; i--) {
+      MatrixMultiply(a, a);
+      if (bs.test(i)) {
+        MatrixMultiply(a, kFollowedBy);
+      }
+    }
+
+    int sum = 0;
+    for (int i = 0; i < 5; i++) {
+      for (int j = 0; j < 5; j++) {
+        sum = (sum + a[i][j]) % kModulo;
+      }
+    }
+    return sum;
+  }
+
+ private:
+  void MatrixMultiply(int a[][5], const int b[][5]) {
+    int c[5][5];
+    for (int i = 0; i < 5; i++) {
+      for (int j = 0; j < 5; j++) {
+        c[i][j] = 0;
+        for (int k = 0; k < 5; k++) {
+          c[i][j] =
+              (c[i][j] + (long long)a[i][k] * b[k][j] % kModulo) % kModulo;
+        }
+      }
+    }
+    memcpy(a, c, sizeof(int) * 5 * 5);
   }
 };
 
