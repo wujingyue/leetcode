@@ -32,7 +32,7 @@ struct hash<Node> {
 };
 }  // namespace std
 
-class Solution {
+class BFSMemoizationSolution {
  public:
   int uniquePathsIII(const vector<vector<int>>& grid) {
     int r = grid.size();
@@ -103,6 +103,89 @@ class Solution {
     return m[Node{end_x, end_y, end_s}];
   }
 };
+
+class DFSSolver {
+ public:
+  DFSSolver(const vector<vector<int>>& grid) : grid_(grid) {
+    r_ = grid.size();
+    c_ = grid[0].size();
+    m_.resize(r_);
+    for (int x = 0; x < r_; x++) {
+      m_[x].resize(c_);
+      for (int y = 0; y < c_; y++) {
+        m_[x][y].resize(1 << r_ * c_, -1);
+      }
+    }
+  }
+
+  int Solve() {
+    int start_x = -1;
+    int start_y = -1;
+    int end_x = -1;
+    int end_y = -1;
+    int end_s = 0;
+    for (int x = 0; x < r_; x++) {
+      for (int y = 0; y < c_; y++) {
+        if (grid_[x][y] == 1) {
+          start_x = x;
+          start_y = y;
+        }
+        if (grid_[x][y] == 2) {
+          end_x = x;
+          end_y = y;
+        }
+        if (grid_[x][y] != -1) {
+          end_s |= (1 << (x * c_ + y));
+        }
+      }
+    }
+
+    m_[start_x][start_y][1 << (start_x * c_ + start_y)] = 1;
+    return DFS(end_x, end_y, end_s);
+  }
+
+ private:
+  int DFS(int x, int y, int s) {
+    int& value = m_[x][y][s];
+    if (value >= 0) {
+      return value;
+    }
+
+    int mask = (1 << (x * c_ + y));
+    if ((s & mask) == 0) {
+      return 0;
+    }
+
+    value = 0;
+    for (int dir = 0; dir < 4; dir++) {
+      int x2 = x + kDx[dir];
+      int y2 = y + kDy[dir];
+      if (x2 < 0 || x2 >= r_ || y2 < 0 || y2 >= c_) {
+        continue;
+      }
+      if (grid_[x2][y2] == -1) {
+        continue;
+      }
+      value += DFS(x2, y2, s - mask);
+    }
+    return value;
+  }
+
+  vector<vector<int>> grid_;
+  vector<vector<vector<int>>> m_;
+  int r_;
+  int c_;
+};
+
+class DFSMemoizationSolution {
+ public:
+  int uniquePathsIII(const vector<vector<int>>& grid) {
+    DFSSolver solver(grid);
+    return solver.Solve();
+  }
+};
+
+using Solution = BFSMemoizationSolution;
 
 class SolutionTest : public testing::Test {
  protected:
