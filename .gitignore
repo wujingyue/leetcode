@@ -1,9 +1,10 @@
+*.exe
 *.stackdump
 *.swp
+.classpath
 .cproject
 .project
 .settings
 .vscode
-a.exe
 a.out
 /bin/
