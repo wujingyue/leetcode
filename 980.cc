@@ -109,13 +109,6 @@ class DFSSolver {
   DFSSolver(const vector<vector<int>>& grid) : grid_(grid) {
     r_ = grid.size();
     c_ = grid[0].size();
-    m_.resize(r_);
-    for (int x = 0; x < r_; x++) {
-      m_[x].resize(c_);
-      for (int y = 0; y < c_; y++) {
-        m_[x][y].resize(1 << r_ * c_, -1);
-      }
-    }
   }
 
   int Solve() {
@@ -140,23 +133,22 @@ class DFSSolver {
       }
     }
 
-    m_[start_x][start_y][1 << (start_x * c_ + start_y)] = 1;
+    m_[Node{start_x, start_y, 1 << (start_x * c_ + start_y)}] = 1;
     return DFS(end_x, end_y, end_s);
   }
 
  private:
   int DFS(int x, int y, int s) {
-    int& value = m_[x][y][s];
-    if (value >= 0) {
-      return value;
+    Node n{x, y, s};
+    if (m_.count(n)) {
+      return m_.at(n);
     }
 
+    int& value = m_[n];
     int mask = (1 << (x * c_ + y));
     if ((s & mask) == 0) {
       return 0;
     }
-
-    value = 0;
     for (int dir = 0; dir < 4; dir++) {
       int x2 = x + kDx[dir];
       int y2 = y + kDy[dir];
@@ -172,7 +164,7 @@ class DFSSolver {
   }
 
   vector<vector<int>> grid_;
-  vector<vector<vector<int>>> m_;
+  unordered_map<Node, int> m_;
   int r_;
   int c_;
 };
