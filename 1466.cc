@@ -2,17 +2,7 @@
 
 using namespace std;
 
-enum EdgeType {
-  INCOMING,
-  OUTGOING,
-};
-
-struct Edge {
-  int neighbor;
-  EdgeType type;
-};
-
-using Graph = vector<vector<Edge>>;
+using Graph = vector<vector<int>>;
 
 class Solution {
  public:
@@ -21,27 +11,34 @@ class Solution {
     for (const vector<int>& e : edges) {
       const int x = e[0];
       const int y = e[1];
-      g[x].push_back(Edge{y, OUTGOING});
-      g[y].push_back(Edge{x, INCOMING});
+      g[x].push_back(y);
+      g[y].push_back(x);
     }
 
-    return DFS(g, 0, 0);
+    vector<int> parent(n, -1);
+    parent[0] = 0;
+    DFS(g, 0, parent);
+
+    int num_changes = 0;
+    for (const vector<int>& e : edges) {
+      const int x = e[0];
+      const int y = e[1];
+      if (x == parent[y]) {
+        num_changes++;
+      }
+    }
+    return num_changes;
   }
 
  private:
-  int DFS(const Graph& g, const int x, const int parent) {
-    int changes = 0;
-    for (const Edge& e : g[x]) {
-      const int y = e.neighbor;
-      if (y == parent) {
+  void DFS(const Graph& g, const int x, vector<int>& parent) {
+    for (const int y : g[x]) {
+      if (parent[y] != -1) {
         continue;
       }
-      if (e.type == OUTGOING) {
-        changes++;
-      }
-      changes += DFS(g, y, x);
+      parent[y] = x;
+      DFS(g, y, parent);
     }
-    return changes;
   }
 };
 
