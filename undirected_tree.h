@@ -25,4 +25,6 @@ class UndirectedTree {
   std::vector<std::vector<int>> adj_;
 };
 
+UndirectedTree GenerateRandomUndirectedTree(int n);
+
 #endif  // _UNDIRECTED_TREE_H

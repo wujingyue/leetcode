@@ -88,3 +88,15 @@ bool UndirectedTree::operator==(const UndirectedTree& other) const {
 
   return true;
 }
+
+UndirectedTree GenerateRandomUndirectedTree(const int n) {
+  if (n == 0 || n == 1) {
+    return UndirectedTree(n);
+  }
+
+  vector<int> prufer(n - 2);
+  for (int i = 0; i < n - 2; i++) {
+    prufer[i] = rand() % n;
+  }
+  return UndirectedTree(prufer, n);
+}
