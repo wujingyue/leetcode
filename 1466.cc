@@ -1,7 +1,8 @@
-#include "gtest/gtest.h"
-
 #include <queue>
 #include <vector>
+
+#include "benchmark/benchmark.h"
+#include "gtest/gtest.h"
 
 using namespace std;
 
@@ -59,3 +60,11 @@ TEST(SolutionTest, testSample2) {
   Solution s;
   EXPECT_EQ(0, s.minReorder(3, {{1, 0}, {2, 0}}));
 }
+
+static void BM_Sample(benchmark::State& state) {
+  Solution s;
+  for (auto _ : state) {
+    s.minReorder(5, {{1, 0}, {1, 2}, {3, 2}, {3, 4}});
+  }
+}
+BENCHMARK(BM_Sample)->Unit(benchmark::kMillisecond);
