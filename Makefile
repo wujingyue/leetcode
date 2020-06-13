@@ -12,4 +12,7 @@ clean:
 test_%: %.exe
 	./$<
 
-.PHONY: clean *.test
+benchmark_%: %_benchmark.exe
+	./$<
+
+.PHONY: clean test_* benchmark_*
