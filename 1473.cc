@@ -36,7 +36,7 @@ class Solution {
     ComputePrefixSuffixMin(1, num_colors, m, prefix_min, suffix_min);
 
     for (int i = 1; i < n; i++) {
-      for (int j = 1; j <= num_neighborhoods; j++) {
+      for (int j = num_neighborhoods; j >= 1; j--) {
         for (int k = 1; k <= num_colors; k++) {
           if (cost[i][k - 1] == INT_MAX) {
             m[j][k] = INT_MAX;
@@ -52,8 +52,6 @@ class Solution {
           }
           m[j][k] = local_min;
         }
-      }
-      for (int j = 1; j <= num_neighborhoods; j++) {
         ComputePrefixSuffixMin(j, num_colors, m, prefix_min, suffix_min);
       }
     }
