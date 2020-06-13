@@ -25,24 +25,21 @@ class Solution {
       g[y].push_back(Edge{x, INCOMING});
     }
 
-    vector<int> parent(n, -1);
-    parent[0] = 0;
-    return DFS(g, 0, parent);
+    return DFS(g, 0, 0);
   }
 
  private:
-  int DFS(const Graph& g, const int x, vector<int>& parent) {
+  int DFS(const Graph& g, const int x, const int parent) {
     int changes = 0;
     for (const Edge& e : g[x]) {
       const int y = e.neighbor;
-      if (parent[y] != -1) {
+      if (y == parent) {
         continue;
       }
-      parent[y] = x;
       if (e.type == OUTGOING) {
         changes++;
       }
-      changes += DFS(g, y, parent);
+      changes += DFS(g, y, x);
     }
     return changes;
   }
