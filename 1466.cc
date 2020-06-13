@@ -1,5 +1,8 @@
 #include "gtest/gtest.h"
 
+#include <queue>
+#include <vector>
+
 using namespace std;
 
 using Graph = vector<vector<int>>;
@@ -17,7 +20,7 @@ class Solution {
 
     vector<int> parent(n, -1);
     parent[0] = 0;
-    DFS(g, 0, parent);
+    BFS(g, 0, parent);
 
     int num_changes = 0;
     for (const vector<int>& e : edges) {
@@ -31,13 +34,18 @@ class Solution {
   }
 
  private:
-  void DFS(const Graph& g, const int x, vector<int>& parent) {
-    for (const int y : g[x]) {
-      if (parent[y] != -1) {
-        continue;
+  void BFS(const Graph& g, const int start, vector<int>& parent) {
+    queue<int> q;
+    q.push(start);
+    while (!q.empty()) {
+      const int x = q.front();
+      q.pop();
+      for (const int y : g[x]) {
+        if (parent[y] == -1) {
+          parent[y] = x;
+          q.push(y);
+        }
       }
-      parent[y] = x;
-      DFS(g, y, parent);
     }
   }
 };
