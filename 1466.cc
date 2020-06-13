@@ -3,6 +3,7 @@
 
 #include "benchmark/benchmark.h"
 #include "gtest/gtest.h"
+#include "undirected_tree.h"
 
 using namespace std;
 
@@ -68,3 +69,29 @@ static void BM_Sample(benchmark::State& state) {
   }
 }
 BENCHMARK(BM_Sample)->Unit(benchmark::kMillisecond);
+
+static void BM_Large(benchmark::State& state) {
+  constexpr int n = 100000;
+  UndirectedTree tree = GenerateRandomUndirectedTree(n);
+  vector<vector<int>> edges;
+  for (int x = 0; x < n; x++) {
+    for (const int y : tree.Neighbors(x)) {
+      if (x < y) {
+        edges.push_back({x, y});
+      }
+    }
+  }
+
+  random_shuffle(edges.begin(), edges.end());
+  for (vector<int>& edge : edges) {
+    if (rand() % 2 == 0) {
+      swap(edge[0], edge[1]);
+    }
+  }
+
+  Solution s;
+  for (auto _ : state) {
+    s.minReorder(n, edges);
+  }
+}
+BENCHMARK(BM_Large)->Unit(benchmark::kMillisecond);
