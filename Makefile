@@ -9,4 +9,7 @@ CXXFLAGS = -std=gnu++11 -g -Wall -Werror
 clean:
 	rm -f *.exe
 
-.PHONY: clean
+test_%: %.exe
+	./$<
+
+.PHONY: clean *.test
