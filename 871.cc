@@ -17,23 +17,25 @@ class Solution {
     stations.push_back(Station{target, 0});
 
     const int n = stations.size();
-    vector<vector<long long>> m(n, vector<long long>(n + 1, LLONG_MIN));
-    m[0][1] = stations[0].gas;
+    vector<long long> m(n + 1, LLONG_MIN);
+    m[1] = stations[0].gas;
 
     for (int i = 1; i < n; i++) {
-      for (int j = 0; j <= n; j++) {
-        const int delta_pos = stations[i].pos - stations[i - 1].pos;
-        if (m[i - 1][j] >= delta_pos) {
-          m[i][j] = max(m[i][j], m[i - 1][j] - delta_pos);
+      const int delta_pos = stations[i].pos - stations[i - 1].pos;
+      for (int j = n; j >= 0; j--) {
+        long long mij = LLONG_MIN;
+        if (m[j] >= delta_pos) {
+          mij = max(mij, m[j] - delta_pos);
         }
-        if (j - 1 >= 0 && m[i - 1][j - 1] >= delta_pos) {
-          m[i][j] = max(m[i][j], m[i - 1][j - 1] - delta_pos + stations[i].gas);
+        if (j - 1 >= 0 && m[j - 1] >= delta_pos) {
+          mij = max(mij, m[j - 1] - delta_pos + stations[i].gas);
         }
+        m[j] = mij;
       }
     }
 
     for (int j = 0; j <= n; j++) {
-      if (m[n - 1][j] > LLONG_MIN) {
+      if (m[j] > LLONG_MIN) {
         return j - 1;
       }
     }
