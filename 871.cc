@@ -1,4 +1,5 @@
 #include <climits>
+#include <queue>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -8,45 +9,42 @@ using namespace std;
 class Solution {
  public:
   int minRefuelStops(const int target, const int start_fuel,
-                     const vector<vector<int>>& input_stations) {
-    vector<Station> stations;
-    stations.push_back(Station{0, start_fuel});
-    for (const vector<int>& input_station : input_stations) {
-      stations.push_back(Station{input_station[0], input_station[1]});
-    }
-    stations.push_back(Station{target, 0});
-
+                     const vector<vector<int>>& stations) {
     const int n = stations.size();
-    vector<long long> m(n + 1, LLONG_MIN);
-    m[1] = stations[0].gas;
+    int cur_fuel = start_fuel;
+    int prev_pos = 0;
+    priority_queue<int> stop_fuels;
+    int num_stops = 0;
 
-    for (int i = 1; i < n; i++) {
-      const int delta_pos = stations[i].pos - stations[i - 1].pos;
-      for (int j = n; j >= 0; j--) {
-        long long mij = LLONG_MIN;
-        if (m[j] >= delta_pos) {
-          mij = max(mij, m[j] - delta_pos);
-        }
-        if (j - 1 >= 0 && m[j - 1] >= delta_pos) {
-          mij = max(mij, m[j - 1] - delta_pos + stations[i].gas);
-        }
-        m[j] = mij;
+    for (int i = 0; i < n; i++) {
+      if (!MoveForward(stations[i][0] - prev_pos, &cur_fuel, &stop_fuels,
+                        &num_stops)) {
+        return -1;
       }
+      stop_fuels.push(stations[i][1]);
+      prev_pos = stations[i][0];
     }
 
-    for (int j = 0; j <= n; j++) {
-      if (m[j] > LLONG_MIN) {
-        return j - 1;
-      }
+    if (!MoveForward(target - prev_pos, &cur_fuel, &stop_fuels, &num_stops)) {
+      return -1;
     }
-    return -1;
+    return num_stops;
   }
 
  private:
-  struct Station {
-    int pos;
-    int gas;
-  };
+  bool MoveForward(const int distance, int* cur_fuel,
+                   priority_queue<int>* stop_fuels, int* num_stops) {
+    (*cur_fuel) -= distance;
+    while (*cur_fuel < 0 && !stop_fuels->empty()) {
+      (*cur_fuel) += stop_fuels->top();
+      (*num_stops)++;
+      stop_fuels->pop();
+    }
+    if (*cur_fuel < 0) {
+      return false;
+    }
+    return true;
+  }
 };
 
 TEST(SolutionTest, testSample1) {
