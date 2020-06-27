@@ -60,7 +60,90 @@ class BinarySearchSolution {
   }
 };
 
-using Solution = BinarySearchSolution;
+class UnionFindSet {
+ public:
+  UnionFindSet(const int n) : parent_(n, -1), size_(n, 0) {}
+
+  void Add(int i) {
+    parent_[i] = i;
+    size_[i] = 1;
+  }
+
+  int GetParent(int i) {
+    int* p = &parent_[i];
+    if (i == *p) {
+      return i;
+    }
+    *p = GetParent(*p);
+    return *p;
+  }
+
+  int GetSize(int i) {
+    if (size_[i] == 0) {
+      return 0;
+    }
+    return size_[GetParent(i)];
+  }
+
+  void Union(int i, int j) {
+    const int pi = GetParent(i);
+    const int pj = GetParent(j);
+    assert(pi != pj);
+    parent_[pj] = pi;
+    size_[pi] += size_[pj];
+  };
+
+ private:
+  vector<int> parent_;
+  vector<int> size_;
+};
+
+class UnionFindSolution {
+ public:
+  int minDays(const vector<int>& days, const int m, const int k) {
+    const int n = days.size();
+    vector<pair<int, int>> value_index;
+    value_index.reserve(n);
+    for (int i = 0; i < n; i++) {
+      value_index.push_back(make_pair(days[i], i));
+    }
+    sort(value_index.begin(), value_index.end());
+
+    UnionFindSet ufs(n);
+    int num_segments = 0;
+    for (const pair<int, int>& entry : value_index) {
+      const int value = entry.first;
+      const int i = entry.second;
+
+      ufs.Add(i);
+
+      int left_size = 0;
+      if (i - 1 >= 0) {
+        left_size = ufs.GetSize(i - 1);
+        if (left_size > 0) {
+          ufs.Union(i, i - 1);
+        }
+      }
+      int right_size = 0;
+      if (i + 1 < n) {
+        right_size = ufs.GetSize(i + 1);
+        if (right_size > 0) {
+          ufs.Union(i, i + 1);
+        }
+      }
+
+      num_segments -= left_size / k;
+      num_segments -= right_size / k;
+      num_segments += (left_size + 1 + right_size) / k;
+      if (num_segments >= m) {
+        return value;
+      }
+    }
+    return -1;
+  }
+};
+
+using Solution = UnionFindSolution;
 
 TEST(SolutionTest, testSample1) {
   Solution s;
