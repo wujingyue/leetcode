@@ -53,7 +53,8 @@ class OptimizedDpSolution {
     sort(a.begin(), a.end());
     const int n = a.size();
 
-    vector<vector<int>> d(n, vector<int>(n, 0));
+    constexpr int kMaxN = 100;
+    int d[kMaxN][kMaxN];
     for (int i = n - 1; i >= 0; i--) {
       for (int j = i; j < n; j++) {
         if (i == j) {
