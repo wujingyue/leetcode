@@ -12,6 +12,8 @@ class NaiveDpSolution {
     sort(a.begin(), a.end());
     const int n = a.size();
 
+    // d[i][j] represents the total distance if we cover House i..j with
+    // only one mail box.
     vector<vector<int>> d(n, vector<int>(n, 0));
     for (int i = 0; i < n; i++) {
       for (int j = i; j < n; j++) {
@@ -21,49 +23,26 @@ class NaiveDpSolution {
         }
       }
     }
-#if 1
-    for (int i1 = 0; i1 < n; i1++) {
-      for (int i2 = i1; i2 < n; i2++) {
-        for (int i3 = i2; i3 < n; i3++) {
-          for (int i4 = i3; i4 < n; i4++) {
-            assert(d[i1][i3] + d[i2][i4] <= d[i1][i4] + d[i2][i3]);
-          }
-        }
-      }
-    }
-#endif
 
     vector<vector<int>> m(n + 1, vector<int>(k + 1, INT_MAX));
     vector<vector<int>> c(n + 1, vector<int>(k + 1, -1));
     m[0][0] = 0;
     for (int j = 1; j <= k; j++) {
       for (int i = j; i <= n; i++) {
-        // m[i][j] = min(m[i'][j - 1] + TotalDistanceWithOneMailBox(i', i - 1))
-        // for all 0 <= i' < i
-        for (int i2 = 0; i2 < i; i2++) {
-          int m2 = m[i2][j - 1];
+        // m[i][j] = min(m[t][j - 1] + d[t][i-1])
+        // for all 0 <= t < i
+        for (int t = 0; t < i; t++) {
+          int m2 = m[t][j - 1];
           if (m2 < INT_MAX) {
-            const int temp = m2 + d[i2][i - 1];
+            const int temp = m2 + d[t][i - 1];
             if (temp < m[i][j]) {
               m[i][j] = temp;
-              c[i][j] = i2;
+              c[i][j] = t;
             }
           }
         }
       }
     }
-#if 1
-    for (int j = 1; j <= k; j++) {
-      for (int i = j; i <= n; i++) {
-        if (i + 1 <= n) {
-          assert(c[i][j] <= c[i + 1][j]);
-        }
-        if (j - 1 >= 1) {
-          assert(c[i][j] >= c[i][j - 1]);
-        }
-      }
-    }
-#endif
     return m[n][k];
   }
 };
@@ -89,28 +68,29 @@ class OptimizedDpSolution {
       }
     }
 
-    vector<vector<int>> m(n + 1, vector<int>(k + 1, INT_MAX));
-    vector<vector<int>> c(n + 1, vector<int>(k + 1, -1));
-    m[0][0] = 0;
+    vector<int> m(n + 1, INT_MAX);
+    vector<int> c(n + 1, -1);
+    m[0] = 0;
     for (int j = 1; j <= k; j++) {
       for (int i = n; i >= j; i--) {
-        // m[i][j] = min(m[i'][j - 1] + TotalDistanceWithOneMailBox(i', i - 1))
-        // for all (c[i][j - 1] or 0) <= i' <= (c[i + 1][j] or i - 1).
-        int start = (c[i][j - 1] != -1 ? c[i][j - 1] : 0);
-        int end = (i + 1 <= n && c[i + 1][j] != -1 ? c[i + 1][j] : i - 1);
-        for (int i2 = start; i2 <= end; i2++) {
-          int m2 = m[i2][j - 1];
+        // m[i][j] = min(m[t][j - 1] + d[t][i-1])
+        // for all (c[i][j - 1] or 0) <= t <= (c[i + 1][j] or i - 1).
+        int start = (c[i] != -1 ? c[i] : 0);
+        int end = (i == n ? i - 1 : min(c[i + 1], i - 1));
+        m[i] = INT_MAX;
+        for (int t = start; t <= end; t++) {
+          int m2 = m[t];
           if (m2 < INT_MAX) {
-            const int temp = m2 + d[i2][i - 1];
-            if (temp < m[i][j]) {
-              m[i][j] = temp;
-              c[i][j] = i2;
+            const int temp = m2 + d[t][i - 1];
+            if (temp < m[i]) {
+              m[i] = temp;
+              c[i] = t;
             }
           }
         }
       }
     }
-    return m[n][k];
+    return m[n];
   }
 };
 
