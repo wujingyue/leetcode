@@ -39,8 +39,26 @@ class Solution {
   }
 };
 
-TEST(SolutionTest, testSample) {
+TEST(SolutionTest, testSample1) {
   vector<int> a({1, 4, 8, 10, 20});
   Solution s;
   EXPECT_EQ(5, s.minDistance(a, 3));
+}
+
+TEST(SolutionTest, testSample2) {
+  vector<int> a({2, 3, 5, 12, 18});
+  Solution s;
+  EXPECT_EQ(9, s.minDistance(a, 2));
+}
+
+TEST(SolutionTest, testSample3) {
+  vector<int> a({7, 4, 6, 1});
+  Solution s;
+  EXPECT_EQ(8, s.minDistance(a, 1));
+}
+
+TEST(SolutionTest, testSample4) {
+  vector<int> a({3, 6, 14, 10});
+  Solution s;
+  EXPECT_EQ(0, s.minDistance(a, 4));
 }
