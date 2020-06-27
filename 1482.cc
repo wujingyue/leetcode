@@ -39,19 +39,21 @@ class BinarySearchSolution {
     const int n = days.size();
     int num_segments = 0;
     int i = 0;
-    while (i < n) {
-      if (days[i] > wait) {
+    while (true) {
+      while (i < n && days[i] > wait) {
         i++;
-        continue;
+      }
+      if (i >= n) {
+        break;
       }
 
+      // days[i] <= wait
       int j = i + 1;
-      while (j < n && j - i < k && days[j] <= wait) {
+      while (j < n && days[j] <= wait) {
         j++;
       }
-      if (j - i >= k) {
-        num_segments++;
-      }
+
+      num_segments += (j - i) / k;
       i = j;
     }
     return num_segments >= m;
