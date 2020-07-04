@@ -8,8 +8,12 @@ using namespace std;
 
 class Solution {
  public:
-  int mergeStones(const vector<int>& a, const int num_splits) {
+  int mergeStones(const vector<int>& a, const int k) {
     const int n = a.size();
+
+    if ((n - 1) % (k - 1) != 0) {
+      return -1;
+    }
 
     vector<vector<int>> sum(n, vector<int>(n));
     for (int i = 0; i < n; i++) {
@@ -19,38 +23,36 @@ class Solution {
       }
     }
 
-    // m[i][j][k] represents the minimum cost to merge the stones between i and
-    // j into k piles.
-    vector<vector<vector<int>>> m(
-        n, vector<vector<int>>(n, vector<int>(num_splits + 1, INT_MAX)));
+    // m[i][j] represents the minimum cost to merge the stones between i and j
+    // to the fewest piles, i.e., (j-i)%(k-1)+1 piles.
+    vector<vector<int>> m(n, vector<int>(n, INT_MAX));
     for (int i = 0; i < n; i++) {
-      m[i][i][1] = 0;
+      m[i][i] = 0;
     }
 
     for (int i = n - 1; i >= 0; i--) {
       for (int j = i + 1; j < n; j++) {
-        for (int k = 2; k <= num_splits; k++) {
-          int mijk = INT_MAX;
-          for (int t = i; t < j; t++) {
-            const int left_merged_to_one_pile = m[i][t][1];
-            if (left_merged_to_one_pile == INT_MAX) {
-              continue;
-            }
-            const int right = m[t + 1][j][k - 1];
-            if (right == INT_MAX) {
-              continue;
-            }
-            UpdateIfSmaller(mijk, left_merged_to_one_pile + right);
+        int mij = INT_MAX;
+        for (int t = i; t < j; t += k - 1) {
+          const int left_merged_to_one_pile = m[i][t];
+          if (left_merged_to_one_pile == INT_MAX) {
+            continue;
           }
-          m[i][j][k] = mijk;
+          const int right = m[t + 1][j];
+          if (right == INT_MAX) {
+            continue;
+          }
+          UpdateIfSmaller(mij, left_merged_to_one_pile + right);
         }
-        if (m[i][j][num_splits] < INT_MAX) {
-          m[i][j][1] = m[i][j][num_splits] + sum[i][j];
+
+        if ((j - i) % (k - 1) == 0) {
+          mij += sum[i][j];
         }
+        m[i][j] = mij;
       }
     }
 
-    return m[0][n - 1][1] == INT_MAX ? -1 : m[0][n - 1][1];
+    return m[0][n - 1];
   }
 
  private:
