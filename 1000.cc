@@ -17,7 +17,7 @@ class Solution {
 
     // m[i][j] represents the minimum cost to merge the stones between i and j
     // to the fewest piles, i.e., (j-i)%(k-1)+1 piles.
-    vector<vector<int>> m(n, vector<int>(n, INT_MAX));
+    int m[n][n];
     for (int i = 0; i < n; i++) {
       m[i][i] = 0;
     }
