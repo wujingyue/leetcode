@@ -15,14 +15,6 @@ class Solution {
       return -1;
     }
 
-    vector<vector<int>> sum(n, vector<int>(n));
-    for (int i = 0; i < n; i++) {
-      sum[i][i] = a[i];
-      for (int j = i + 1; j < n; j++) {
-        sum[i][j] = sum[i][j - 1] + a[j];
-      }
-    }
-
     // m[i][j] represents the minimum cost to merge the stones between i and j
     // to the fewest piles, i.e., (j-i)%(k-1)+1 piles.
     vector<vector<int>> m(n, vector<int>(n, INT_MAX));
@@ -31,7 +23,9 @@ class Solution {
     }
 
     for (int i = n - 1; i >= 0; i--) {
+      int sum = a[i];
       for (int j = i + 1; j < n; j++) {
+        sum += a[j];
         int mij = INT_MAX;
         for (int t = i; t < j; t += k - 1) {
           const int left_merged_to_one_pile = m[i][t];
@@ -46,7 +40,7 @@ class Solution {
         }
 
         if ((j - i) % (k - 1) == 0) {
-          mij += sum[i][j];
+          mij += sum;
         }
         m[i][j] = mij;
       }
