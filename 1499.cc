@@ -11,35 +11,21 @@ class Solution {
   int findMaxValueOfEquation(const vector<vector<int>>& points, const int k) {
     const int n = points.size();
 
-    set<pair<int, int>> additions;
-    set<pair<int, int>> subtractions;
-    int j = 0;
+    deque<pair<int, int>> q;
     int max_value = INT_MIN;
     for (int i = 0; i < n; i++) {
-      while (j < n && points[j][0] - points[i][0] <= k) {
-        additions.insert(make_pair(points[j][0] + points[j][1], j));
-        subtractions.insert(make_pair(points[j][1] - points[j][0], j));
-        j++;
+      while (!q.empty() && points[i][0] - q.front().first > k) {
+        q.pop_front();
       }
-      if (!additions.empty()) {
-        auto max_addition = additions.rbegin();
-        auto max_subtraction = subtractions.rbegin();
-        if (max_addition->second != max_subtraction->second) {
-          max_value =
-              max(max_value, max_addition->first + max_subtraction->first);
-        } else if (additions.size() >= 2) {
-          auto previous_addition = max_addition;
-          ++previous_addition;
-          auto previous_subtraction = max_subtraction;
-          ++previous_subtraction;
-          max_value =
-              max(max_value, previous_addition->first + max_subtraction->first);
-          max_value =
-              max(max_value, max_addition->first + previous_subtraction->first);
-        }
+      if (!q.empty()) {
+        max_value = max(max_value, points[i][0] - q.front().first +
+                                       points[i][1] + q.front().second);
       }
-      additions.erase(make_pair(points[i][0] + points[i][1], i));
-      subtractions.erase(make_pair(points[i][1] - points[i][0], i));
+      while (!q.empty() &&
+             points[i][1] - q.back().second >= points[i][0] - q.back().first) {
+        q.pop_back();
+      }
+      q.push_back({points[i][0], points[i][1]});
     }
     return max_value;
   }
