@@ -12,6 +12,9 @@ undirected_tree.o: undirected_tree.cc undirected_tree.h
 undirected_tree_test.exe: undirected_tree_test.cc undirected_tree.o
 	$(CXX) $(CXXFLAGS) $^ -o $@ -L/usr/local/lib -lgtest -lgtest_main -pthread
 
+743.exe: 743.cc priority_queue.h
+	$(CXX) $(CXXFLAGS) $^ -o $@ -L/usr/local/lib -lgtest -lbenchmark -lgtest_main -pthread
+
 1466.exe: 1466.cc undirected_tree.o
 	$(CXX) $(CXXFLAGS) $^ -o $@ -L/usr/local/lib -lgtest -lbenchmark -lgtest_main -pthread
 

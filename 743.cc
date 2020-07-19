@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "priority_queue.h"
 
 using namespace std;
 
@@ -12,100 +13,7 @@ struct Neighbor {
   int d;
 };
 
-struct NodeInfo {
-  int d;
-  int pos_in_pq;
-
-  bool operator<(const NodeInfo& other) const { return d < other.d; }
-};
-
 using Graph = vector<vector<Neighbor>>;
-
-class PriorityQueue {
- public:
-  PriorityQueue(vector<NodeInfo>&& nodes) { nodes_.swap(nodes); }
-  PriorityQueue(const PriorityQueue&) = delete;
-  PriorityQueue& operator=(const PriorityQueue&) = delete;
-  PriorityQueue(PriorityQueue&&) = default;
-
-  NodeInfo* GetNode(const int x) { return &nodes_[x]; }
-
-  void Insert(const int x) {
-    const int i = order_.size();
-    order_.push_back(x);
-    nodes_[x].pos_in_pq = i;
-    PercolateUp(i);
-  }
-
-  int Pop() {
-    const int x = order_[0];
-    nodes_[x].pos_in_pq = -1;
-
-    const int y = order_.back();
-    order_.pop_back();
-
-    if (!order_.empty()) {
-      order_[0] = y;
-      nodes_[y].pos_in_pq = 0;
-      PercolateDown(0);
-    }
-
-    return x;
-  }
-
-  bool Empty() const { return order_.empty(); }
-
-  void Adjust(const int i) {
-    PercolateUp(i);
-    PercolateDown(i);
-  }
-
- private:
-  bool SatisfiesHeapOrder(const int x, const int y) {
-    return !(nodes_[y] < nodes_[x]);
-  }
-
-  void PercolateUp(int j) {
-    int y = order_[j];
-    while (j > 0) {
-      int i = (j - 1) / 2;
-      int x = order_[i];
-      if (SatisfiesHeapOrder(x, y)) {
-        break;
-      }
-      order_[j] = x;
-      nodes_[x].pos_in_pq = j;
-      j = i;
-    }
-    order_[j] = y;
-    nodes_[y].pos_in_pq = j;
-  }
-
-  void PercolateDown(int i) {
-    const int n = order_.size();
-
-    int x = order_[i];
-    while (i * 2 + 1 < n) {
-      int j = i * 2 + 1;
-      if (j + 1 < (int)order_.size() &&
-          nodes_[order_[j + 1]] < nodes_[order_[j]]) {
-        j++;
-      }
-      int y = order_[j];
-      if (SatisfiesHeapOrder(x, y)) {
-        break;
-      }
-      order_[i] = y;
-      nodes_[y].pos_in_pq = i;
-      i = j;
-    }
-    order_[i] = x;
-    nodes_[x].pos_in_pq = i;
-  }
-
-  vector<int> order_;
-  vector<NodeInfo> nodes_;
-};
 
 class Solution {
  public:
@@ -120,38 +28,40 @@ class Solution {
       g[x].push_back(Neighbor{y, edge[2]});
     }
 
-    PriorityQueue pq = Dijkstra(g, start);
+    PriorityQueue<int> pq = Dijkstra(g, start);
     int max_d = INT_MIN;
     for (int x = 0; x < n; x++) {
-      max_d = max(max_d, pq.GetNode(x)->d);
+      max_d = max(max_d, *pq.GetNode(x));
     }
     return max_d == INT_MAX ? -1 : max_d;
   }
 
  private:
-  PriorityQueue Dijkstra(const Graph& g, const int start) {
+  PriorityQueue<int> Dijkstra(const Graph& g, const int start) {
     const int n = g.size();
 
-    vector<NodeInfo> nodes;
-    nodes.reserve(n);
+    vector<int> distances;
+    distances.reserve(n);
     for (int x = 0; x < n; x++) {
-      nodes.push_back(NodeInfo{x == start ? 0 : INT_MAX, -1});
+      distances.push_back(x == start ? 0 : INT_MAX);
     }
 
-    PriorityQueue pq(std::move(nodes));
+    PriorityQueue<int> pq(std::move(distances));
     pq.Insert(start);
 
     while (!pq.Empty()) {
       const int x = pq.Pop();
+      const int dx = *pq.GetNode(x);
 
       for (const Neighbor& neighbor : g[x]) {
-        NodeInfo* node_y = pq.GetNode(neighbor.y);
-        const int new_d = pq.GetNode(x)->d + neighbor.d;
-        if (new_d < node_y->d) {
-          node_y->d = new_d;
-          const int j = node_y->pos_in_pq;
+        const int y = neighbor.y;
+        int* dy = pq.GetNode(y);
+        const int new_d = dx + neighbor.d;
+        if (new_d < *dy) {
+          *dy = new_d;
+          const int j = pq.GetPosition(y);
           if (j == -1) {
-            pq.Insert(neighbor.y);
+            pq.Insert(y);
           } else {
             pq.Adjust(j);
           }
