@@ -18,7 +18,8 @@ class Solution {
       }
     }
 
-    sort(sums.begin(), sums.end());
+    nth_element(sums.begin(), sums.begin() + left - 1, sums.end());
+    nth_element(sums.begin() + left, sums.begin() + right - 1, sums.end());
 
     int answer = 0;
     for (int i = left - 1; i <= right - 1; i++) {
