@@ -11,8 +11,8 @@ class Solution {
   int numSplits(const string& a) {
     const int n = a.size();
 
-    vector<int> left(26);
-    vector<int> right(26);
+    array<int, 26> left = {0};
+    array<int, 26> right = {0};
     int left_non_zero = 0;
     int right_non_zero = 0;
 
