@@ -16,7 +16,10 @@ suffix_array.o: suffix_array.cc suffix_array.h
 	$(CXX) $(CXXFLAGS) $< -o $@ -c
 
 suffix_array_test.exe: suffix_array_test.cc suffix_array.o
-	$(CXX) $(CXXFLAGS) $^ -o $@ -L/usr/local/lib -lgtest -lgtest_main -pthread
+	$(CXX) $(CXXFLAGS) $^ -o $@ -L/usr/local/lib -lgtest -lbenchmark -lgtest_main -pthread
+
+suffix_array_benchmark.exe: suffix_array_test.cc suffix_array.o
+	$(CXX) $(CXXFLAGS) $^ -o $@ -L/usr/local/lib -lgtest -lbenchmark -lbenchmark_main -pthread
 
 743.exe: 743.cc priority_queue.h
 	$(CXX) $(CXXFLAGS) $^ -o $@ -L/usr/local/lib -lgtest -lbenchmark -lgtest_main -pthread

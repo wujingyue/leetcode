@@ -1,5 +1,6 @@
 #include "suffix_array.h"
 
+#include "benchmark/benchmark.h"
 #include "gtest/gtest.h"
 
 using namespace std;
@@ -41,3 +42,21 @@ TEST(SuffixArrayTest, testRandom) {
     EXPECT_EQ(rank, sa.GetRank(vector_indexes[rank].index));
   }
 }
+
+static void BM_Vector(benchmark::State& state) {
+  const int n = state.range(0);
+  vector<int> a(n);
+  for (int i = 0; i < n; i++) {
+    a[i] = rand() % 2;
+  }
+  for (auto _ : state) {
+    SuffixArray sa(a);
+    for (int i = 0; i < n; i++) {
+      const int rank = sa.GetRank(i);
+      EXPECT_LE(0, rank);
+      EXPECT_GT(n, rank);
+    }
+  }
+}
+BENCHMARK(BM_Vector)->Arg(1000)->Arg(10000)->Arg(100000)->Unit(
+    benchmark::kMillisecond);
