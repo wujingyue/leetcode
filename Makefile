@@ -25,6 +25,9 @@ suffix_array_benchmark.exe: suffix_array_test.cc suffix_array.o
 321.exe: 321.cc suffix_array.o
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lgtest_main
 
+321_benchmark.exe: 321.cc suffix_array.o
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbenchmark_main
+
 743.exe: 743.cc priority_queue.h
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lgtest_main
 
@@ -32,7 +35,7 @@ suffix_array_benchmark.exe: suffix_array_test.cc suffix_array.o
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lgtest_main
 
 1466_benchmark.exe: 1466.cc undirected_tree.o
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lgtest_main
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbenchmark_main
 
 clean:
 	rm -f *.exe *.o

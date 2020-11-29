@@ -1,7 +1,7 @@
 #include <vector>
 
+#include "benchmark/benchmark.h"
 #include "gtest/gtest.h"
-
 #include "suffix_array.h"
 
 using namespace std;
@@ -82,3 +82,25 @@ TEST(SolutionTest, testSample3) {
   Solution s;
   EXPECT_EQ(vector<int>({9, 8, 9}), s.maxNumber({3, 9}, {8, 9}, 3));
 }
+
+static void BM_Binary(benchmark::State& state) {
+  const int n = state.range(0);
+  vector<int> a(n);
+  vector<int> b(n);
+  for (int i = 0; i < n; i++) {
+    a[i] = rand() % 2;
+    b[i] = rand() % 2;
+  }
+
+  Solution s;
+  for (auto _ : state) {
+    s.maxNumber(a, b, n);
+  }
+}
+BENCHMARK(BM_Binary)
+    ->Arg(1000)
+    ->Arg(2000)
+    ->Arg(3000)
+    ->Arg(4000)
+    ->Arg(5000)
+    ->Unit(benchmark::kMillisecond);
