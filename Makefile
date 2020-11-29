@@ -21,6 +21,9 @@ suffix_array_test.exe: suffix_array_test.cc suffix_array.o
 suffix_array_benchmark.exe: suffix_array_test.cc suffix_array.o
 	$(CXX) $(CXXFLAGS) $^ -o $@ -L/usr/local/lib -lgtest -lbenchmark -lbenchmark_main -pthread
 
+321.exe: 321.cc suffix_array.o
+	$(CXX) $(CXXFLAGS) $^ -o $@ -L/usr/local/lib -lgtest -lbenchmark -lgtest_main -pthread
+
 743.exe: 743.cc priority_queue.h
 	$(CXX) $(CXXFLAGS) $^ -o $@ -L/usr/local/lib -lgtest -lbenchmark -lgtest_main -pthread
 

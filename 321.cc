@@ -2,6 +2,8 @@
 
 #include "gtest/gtest.h"
 
+#include "suffix_array.h"
+
 using namespace std;
 
 class Solution {
@@ -18,7 +20,7 @@ class Solution {
       vector<int> a2 = MaxNumber(a, i);
       vector<int> b2 = MaxNumber(b, k - i);
       vector<int> c = Merge(a2, b2);
-      if (Greater(c, answer)) {
+      if (c > answer) {
         answer = c;
       }
     }
@@ -40,34 +42,20 @@ class Solution {
     return max_number;
   }
 
-  bool Greater(const vector<int>& a, const vector<int>& b) {
-    return Greater(a.begin(), a.end(), b.begin(), b.end());
-  }
-
-  bool Greater(vector<int>::const_iterator b1, vector<int>::const_iterator e1,
-               vector<int>::const_iterator b2, vector<int>::const_iterator e2) {
-    vector<int>::const_iterator i1 = b1;
-    vector<int>::const_iterator i2 = b2;
-    while (i1 != e1 && i2 != e2 && *i1 == *i2) {
-      ++i1;
-      ++i2;
-    }
-    if (i1 == e1) {
-      return false;
-    }
-    if (i2 == e2) {
-      return true;
-    }
-    return *i1 > *i2;
-  }
-
   vector<int> Merge(const vector<int>& a, const vector<int>& b) {
+    vector<int> s;
+    s.reserve(a.size() + 1 + b.size());
+    copy(a.begin(), a.end(), back_inserter(s));
+    s.push_back(-1);
+    copy(b.begin(), b.end(), back_inserter(s));
+    SuffixArray sa(s);
+
     vector<int> c;
     c.reserve(a.size() + b.size());
     size_t i = 0;
     size_t j = 0;
     while (i < a.size() || j < b.size()) {
-      if (Greater(a.begin() + i, a.end(), b.begin() + j, b.end())) {
+      if (j == b.size() || sa.GetRank(i) > sa.GetRank(a.size() + 1 + j)) {
         c.push_back(a[i]);
         i++;
       } else {
