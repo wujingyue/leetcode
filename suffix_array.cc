@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <climits>
+#include <functional>
+#include <iostream>
 #include <utility>
 
 using namespace std;
@@ -15,6 +17,25 @@ struct Suffix {
     return make_pair(first, second) < make_pair(other.first, other.second);
   }
 };
+
+template <class T>
+void BucketSort(std::function<int(const T&)> bucket_id, const int max_bucket_id,
+                vector<T>* a) {
+  const int n = a->size();
+  vector<T> temp(n);
+  vector<int> count(max_bucket_id + 1);
+  for (int i = 0; i < n; i++) {
+    count[bucket_id((*a)[i])]++;
+  }
+  for (int j = 1; j <= max_bucket_id; j++) {
+    count[j] += count[j - 1];
+  }
+  for (int i = n - 1; i >= 0; i--) {
+    const int b = bucket_id((*a)[i]);
+    temp[--count[b]] = (*a)[i];
+  }
+  a->swap(temp);
+}
 
 SuffixArray::SuffixArray(const vector<int>& a) : rank_(a.size()) {
   const int n = a.size();
@@ -56,9 +77,16 @@ SuffixArray::SuffixArray(const vector<int>& a) : rank_(a.size()) {
     }
 
     // Sort.
-    // TODO(jingyue): use bucket sort because the range of `suffixes[i].first`
-    // and `suffixes[i].second` are bounded to [-1, n - 1].
-    sort(suffixes.begin(), suffixes.end());
+    function<int(const Suffix&)> by_first = [](const Suffix& suffix) -> int {
+      return suffix.first;
+    };
+    function<int(const Suffix&)> by_second = [](const Suffix& suffix) -> int {
+      return suffix.second + 1;
+    };
+    // Sort by `second` and then sort by `first`. This guarantees that `first`
+    // is more significant than `second`.
+    BucketSort(by_second, n, &suffixes);
+    BucketSort(by_first, n - 1, &suffixes);
   }
 }
 

@@ -58,5 +58,5 @@ static void BM_Vector(benchmark::State& state) {
     }
   }
 }
-BENCHMARK(BM_Vector)->Arg(1000)->Arg(10000)->Arg(100000)->Unit(
+BENCHMARK(BM_Vector)->Arg(1000)->Arg(10000)->Arg(100000)->Arg(1000000)->Unit(
     benchmark::kMillisecond);
