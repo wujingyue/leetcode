@@ -1,6 +1,7 @@
 *.exe
 *.stackdump
 *.swp
+*.o
 .classpath
 .cproject
 .project
