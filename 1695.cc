@@ -9,20 +9,22 @@ class Solution {
   int maximumUniqueSubarray(const vector<int>& a) {
     int n = a.size();
     int left = 0;
-    int right = -1;
+    int right = 0;
     vector<bool> values(kMaxValue + 1);
     int sum = 0;
 
     int max_sum = 0;
-    while (right + 1 < n) {
-      if (values[a[right + 1]] == false) {
-        values[a[right + 1]] = true;
-        sum += a[right + 1];
+    while (right < n) {
+      const int right_value = a[right];
+      if (values[right_value] == false) {
+        values[right_value] = true;
+        sum += right_value;
         right++;
         max_sum = max(max_sum, sum);
       } else {
-        values[a[left]] = false;
-        sum -= a[left];
+        const int left_value = a[left];
+        values[left_value] = false;
+        sum -= left_value;
         left++;
       }
     }
