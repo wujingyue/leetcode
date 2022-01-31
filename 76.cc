@@ -1,6 +1,5 @@
 #include <climits>
 #include <string>
-#include <unordered_map>
 
 #include "gtest/gtest.h"
 
@@ -11,26 +10,31 @@ class Solution {
   string minWindow(const string& s, const string& t) {
     const int n = s.length();
 
-    unordered_map<char, int> t_freq;
+    vector<int> t_freqs(128, 0);
+    int num_letters_in_t = 0;
     for (char c : t) {
-      t_freq[c]++;
+      int& t_freq = t_freqs[c];
+      t_freq++;
+      if (t_freq == 1) {
+        num_letters_in_t++;
+      }
     }
-    const int num_letters_in_t = t_freq.size();
 
     int min_length = INT_MAX;
     int min_left = -1;
     int min_right = -1;
 
     int right = 0;
-    unordered_map<char, int> s_freq;
+    vector<int> s_freqs(128, 0);
     int num_includes = 0;
     for (int left = 0; left < n; left++) {
       while (right < n && num_includes < num_letters_in_t) {
         const char c_add = s[right];
-        if (t_freq.count(c_add)) {
-          int& freq = s_freq[c_add];
-          freq++;
-          if (freq == t_freq.at(c_add)) {
+        const int t_freq = t_freqs[c_add];
+        if (t_freq > 0) {
+          int& s_freq = s_freqs[c_add];
+          s_freq++;
+          if (s_freq == t_freq) {
             num_includes++;
           }
         }
@@ -44,12 +48,13 @@ class Solution {
         }
       }
       const char c_remove = s[left];
-      if (t_freq.count(c_remove)) {
-        int& freq = s_freq[c_remove];
-        if (freq == t_freq.at(c_remove)) {
+      const int t_freq = t_freqs[c_remove];
+      if (t_freq > 0) {
+        int& s_freq = s_freqs[c_remove];
+        if (s_freq == t_freq) {
           num_includes--;
         }
-        freq--;
+        s_freq--;
       }
     }
 
