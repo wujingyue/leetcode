@@ -8,11 +8,15 @@ using namespace std;
 class RangeSumCounter {
  public:
   RangeSumCounter(vector<int64_t>&& values, int lower, int upper)
-      : values_(values), lower_(lower), upper_(upper) {}
+      : values_(values),
+        buffer_(values_.size()),
+        lower_(lower),
+        upper_(upper) {}
   int Count(int left, int right);
 
  private:
   vector<int64_t> values_;
+  vector<int64_t> buffer_;
   const int lower_;
   const int upper_;
 };
@@ -41,7 +45,11 @@ int RangeSumCounter::Count(const int left, const int right) {
     count += high - low;
   }
 
-  inplace_merge(&values_[left], &values_[mid + 1], &values_[right + 1]);
+  // This is functionality-wise equivalent to inplace_merge. However, reusing a
+  // preallocated buffer is much faster.
+  merge(&values_[left], &values_[mid + 1], &values_[mid + 1],
+        &values_[right + 1], &buffer_[0]);
+  copy(&buffer_[0], &buffer_[right - left + 1], &values_[left]);
   return count;
 }
 
