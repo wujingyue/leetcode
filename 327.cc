@@ -3,9 +3,47 @@
 
 #include "gtest/gtest.h"
 
-#include "ordered_multiset.h"
-
 using namespace std;
+
+class RangeSumCounter {
+ public:
+  RangeSumCounter(vector<int64_t>&& values, int lower, int upper)
+      : values_(values), lower_(lower), upper_(upper) {}
+  int Count(int left, int right);
+
+ private:
+  vector<int64_t> values_;
+  const int lower_;
+  const int upper_;
+};
+
+int RangeSumCounter::Count(const int left, const int right) {
+  if (left >= right) {
+    return 0;
+  }
+
+  const int mid = left + (right - left) / 2;
+  int count = Count(left, mid) + Count(mid + 1, right);
+
+  int low = left;
+  int high = left;
+  for (int j = mid + 1; j <= right; j++) {
+    // In the left half, find the first index >= values_[j] - upper.
+    const int64_t new_lower = values_[j] - upper_;
+    while (low <= mid && values_[low] < new_lower) {
+      low++;
+    }
+    // In the left half, find the first index > values_[j] - lower.
+    const int64_t new_upper = values_[j] - lower_;
+    while (high <= mid && values_[high] <= new_upper) {
+      high++;
+    }
+    count += high - low;
+  }
+
+  inplace_merge(&values_[left], &values_[mid + 1], &values_[right + 1]);
+  return count;
+}
 
 class Solution {
  public:
@@ -13,33 +51,16 @@ class Solution {
     const int n = nums.size();
 
     vector<int64_t> prefix_sums;
-    prefix_sums.reserve(n);
+    prefix_sums.reserve(n + 1);
 
     int64_t prefix_sum = 0;
+    prefix_sums.push_back(prefix_sum);
     for (const int num : nums) {
+      prefix_sum += num;
       prefix_sums.push_back(prefix_sum);
-      prefix_sum += num;
     }
-    sort(prefix_sums.begin(), prefix_sums.end());
-    prefix_sums.erase(unique(prefix_sums.begin(), prefix_sums.end()),
-                      prefix_sums.end());
 
-    OrderedMultiset<int64_t> ordered_multiset(prefix_sums);
-
-    int count = 0;
-    prefix_sum = 0;
-    for (const int num : nums) {
-      // Insert last prefix sum.
-      ordered_multiset.Insert(prefix_sum);
-      prefix_sum += num;
-      // Find the number of previous prefix sums that satisfy
-      //   lower <= prefix_sum - previous_prefix_sum <= upper
-      // i.e.
-      //   prefix_sum - upper <= previous_prefix_sum < prefix_sum - lower + 1
-      count += ordered_multiset.CountLessThan(prefix_sum - lower + 1) -
-               ordered_multiset.CountLessThan(prefix_sum - upper);
-    }
-    return count;
+    return RangeSumCounter(std::move(prefix_sums), lower, upper).Count(0, n);
   }
 };
 

@@ -28,9 +28,6 @@ suffix_array_benchmark.exe: suffix_array_test.cc suffix_array.o
 321_benchmark.exe: 321.cc suffix_array.o
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbenchmark_main
 
-327.exe: 327.cc ordered_multiset.h
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lgtest_main
-
 743.exe: 743.cc priority_queue.h
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lgtest_main
 
