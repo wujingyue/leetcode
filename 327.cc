@@ -7,37 +7,41 @@
 
 using namespace std;
 
+template <class T>
 struct Node {
-  int64_t value;
+  T value;
   int size;  // The size of the subtree rooted at the node.
 };
 
+template <class T>
 class OrderedMultiset {
  public:
   // Construct a complete binary search tree with a list of pre-defined values.
-  OrderedMultiset(const vector<int64_t>& sorted_values);
+  OrderedMultiset(const vector<T>& sorted_values);
 
   // The caller must make sure `value` was in the constructor's `sorted_values`.
-  void Insert(int64_t value);
+  void Insert(const T& value);
 
   // Unlike `Insert`, `value` doesn't have to be in `sorted_values`.
-  int CountLessThan(int64_t value) const;
+  int CountLessThan(const T& value) const;
 
  private:
-  void BuildCompleteBinarySearchTree(const vector<int64_t>& sorted_values,
+  void BuildCompleteBinarySearchTree(const vector<T>& sorted_values,
                                      int index, int left, int right);
 
-  vector<Node> nodes_;
+  vector<Node<T>> nodes_;
 };
 
-OrderedMultiset::OrderedMultiset(const vector<int64_t>& sorted_values) {
+template <class T>
+OrderedMultiset<T>::OrderedMultiset(const vector<T>& sorted_values) {
   const int n = sorted_values.size();
   nodes_.resize(n);
   BuildCompleteBinarySearchTree(sorted_values, 0, 0, n - 1);
 }
 
-void OrderedMultiset::BuildCompleteBinarySearchTree(
-    const vector<int64_t>& sorted_values, const int index, const int low,
+template <class T>
+void OrderedMultiset<T>::BuildCompleteBinarySearchTree(
+    const vector<T>& sorted_values, const int index, const int low,
     const int high) {
   const int size = high - low + 1;
   if (size == 0) {
@@ -69,13 +73,14 @@ void OrderedMultiset::BuildCompleteBinarySearchTree(
                                 low + left_size + 1, high);
 }
 
-void OrderedMultiset::Insert(const int64_t value) {
+template <class T>
+void OrderedMultiset<T>::Insert(const T& value) {
   int i = 0;
   while (true) {
     // assert(i < (int)nodes_.size() &&
     //        "Otherwise `value` was not passed into the constructor.");
     nodes_[i].size++;
-    const int64_t curr = nodes_[i].value;
+    const T curr = nodes_[i].value;
     if (value == curr) {
       break;
     }
@@ -87,12 +92,13 @@ void OrderedMultiset::Insert(const int64_t value) {
   }
 }
 
-int OrderedMultiset::CountLessThan(const int64_t value) const {
+template <class T>
+int OrderedMultiset<T>::CountLessThan(const T& value) const {
   const int n = nodes_.size();
   int count = 0;
   int i = 0;
   while (i < n) {
-    const int64_t curr = nodes_[i].value;
+    const T& curr = nodes_[i].value;
     if (value <= curr) {
       i = i * 2 + 1;
     } else {
@@ -121,7 +127,7 @@ class Solution {
     prefix_sums.erase(unique(prefix_sums.begin(), prefix_sums.end()),
                       prefix_sums.end());
 
-    OrderedMultiset ordered_multiset(prefix_sums);
+    OrderedMultiset<int64_t> ordered_multiset(prefix_sums);
 
     int count = 0;
     prefix_sum = 0;
