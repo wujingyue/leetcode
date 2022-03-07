@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <cassert>
+#include <queue>
 #include <unordered_set>
 #include <vector>
 
@@ -12,7 +14,7 @@ struct Position {
 
   bool Valid() const { return x != -1 && y != -1; }
   bool operator==(const Position& other) const {
-    return x == other.x && y == other.y;
+    return tie(x, y) == tie(other.x, other.y);
   }
   bool operator!=(const Position& other) const { return !(*this == other); }
 
@@ -94,58 +96,62 @@ class Solution {
     assert(box_end.Valid());
 
     State state_start{person_start, box_start};
+    // TODO(jingyue): replace unordered_set with vector<bool> for performance.
     unordered_set<State> visited_states;
     visited_states.insert(state_start);
-    vector<State> queue(1, state_start);
+    // TODO(jingyue): use an array deque instead for performance.
+    queue<State> q;
+    q.push(state_start);
 
-    auto EnqueueIfNotVisited = [&queue, &visited_states](const State& state) {
-      if (visited_states.count(state) == 0) {
-        visited_states.insert(state);
-        queue.push_back(state);
+    // Returns true if we indeed enqueued.
+    auto EnqueueIfNotVisited = [&q, &visited_states](const State& state) {
+      if (visited_states.count(state) > 0) {
+        return false;
       }
+      visited_states.insert(state);
+      q.push(state);
+      return true;
     };
 
-    int head = 0;
+    vector<pair<Position, int>> pushable_boxes;
+    pushable_boxes.reserve(grid.rows * grid.cols * 4);
+
     int step = 0;
-    while (head < (int)queue.size()) {
+    while (!q.empty()) {
       // Move the person without pushing the box.
-      const int old_head = head;
-      while (head < (int)queue.size()) {
-        const State state = queue[head];
-        head++;
+      pushable_boxes.clear();
+      while (!q.empty()) {
+        const State state = q.front();
+        q.pop();
         const Position& person = state.person;
         for (int dir = 0; dir < 4; dir++) {
           Position neighbor = grid.NeighborOf(person, dir);
-          if (!neighbor.Valid() || !grid.IsEmpty(neighbor) ||
-              neighbor == state.box) {
+          if (!neighbor.Valid() || !grid.IsEmpty(neighbor)) {
             continue;
           }
+          if (neighbor == state.box) {
+            // We'll handle box pushing in the next step. Cache all pushable
+            // boxes so we don't have to compute them again. Because we deduped
+            // with visited_states, pushable_boxes can't contain duplicates.
+            pushable_boxes.push_back({neighbor, dir});
+            continue;
+          }
+
           EnqueueIfNotVisited({neighbor, state.box});
         }
       }
 
       // Push the box.
-      head = old_head;
-      const int tail = queue.size();
-      while (head < tail) {
-        const State state = queue[head];
-        head++;
-        const Position& person = state.person;
-        for (int dir = 0; dir < 4; dir++) {
-          Position neighbor = grid.NeighborOf(person, dir);
-          if (neighbor != state.box) {
-            continue;
-          }
-          Position new_box = grid.NeighborOf(neighbor, dir);
-          if (!new_box.Valid() || !grid.IsEmpty(new_box)) {
-            continue;
-          }
+      for (const auto& [box, dir] : pushable_boxes) {
+        Position new_box = grid.NeighborOf(box, dir);
+        if (!new_box.Valid() || !grid.IsEmpty(new_box)) {
+          continue;
+        }
 
+        if (EnqueueIfNotVisited({box, new_box})) {
           if (new_box == box_end) {
             return step + 1;
           }
-
-          EnqueueIfNotVisited({neighbor, new_box});
         }
       }
 

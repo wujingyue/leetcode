@@ -1,4 +1,4 @@
-CXXFLAGS = -std=gnu++11 -g -Wall -Werror -O2
+CXXFLAGS = -std=gnu++17 -g -Wall -Werror -O2
 LDFLAGS = -L/usr/local/lib -lgtest -lbenchmark -pthread
 
 %.exe: %.cc
